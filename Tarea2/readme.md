@@ -27,7 +27,7 @@ sudo usermod -aG docker $USER
 ### 2. Hacer el script ejecutable
 Desde la terminal se le deben de dar permisos:
 ```bash
-chmod +x create_containers.sh
+chmod +x generador.sh
 ```
 ### 3. Ejecutar el script
 Ejecuta el script para crear los contenedores y mostrar los resultados
