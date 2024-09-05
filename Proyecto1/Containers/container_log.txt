@@ -1,30 +1,30 @@
-Contenedor 1: uHyVCst0 | Imagen: high_ram_image | ID: c24e3f3cd1a65f5a14c7fa570aae95968a700efa5939d0fe2653d73769d596f1
-PID: 8958
+Creando Contenedor  1: QP0rls2l | Imagen: low_ram_image | ID: 39a3b0d8fb8bafad395d7d56feb0e504a48892597df0c357381f2d2b925edb08
+PID: 20896
 -----------------------------
-Contenedor 2: GV0mog9j | Imagen: low_cpu_image, | ID: 
-PID: 
+Creando Contenedor  2: 9wOhQusZ | Imagen: high_ram_image | ID: b51cad9912cb849b73f96547789b4104e56d934cbe2fe56a17ccc03ad8cb7d3e
+PID: 20972
 -----------------------------
-Contenedor 3: qs3Jwiv7 | Imagen: high_cpu_image | ID: cc87111e2bff719a5d52fec51d1a96642f9136c4f4836b1b6cf7510ed19ac259
-PID: 9081
+Creando Contenedor  3: AJ0Pk21H | Imagen: low_ram_image | ID: 59e0639fee7006696fe852fff5801ee87e411657c59d6ec1bbf7c20f98db189a
+PID: 21058
 -----------------------------
-Contenedor 4: ioeKfQDh | Imagen: low_cpu_image, | ID: 
-PID: 
+Creando Contenedor  4: y2ySZKyp | Imagen: low_cpu_image | ID: 2347f571ccc5b45ec306d0decdeb430979a64f24ad573f72af9ea11ff6fe83a9
+PID: 21135
 -----------------------------
-Contenedor 5: GXXxiqYE | Imagen: low_ram_image | ID: e04ed5a4c23f81a7a5465573a8119e92a02bdf7e714bb1176b27b96c1ce65220
-PID: 9208
+Creando Contenedor  5: zNCFh5qD | Imagen: low_ram_image | ID: 466d9a6237241ae642aba7b61e6e0f8cddb248832a3ee40671bbf7fadccd5c08
+PID: 21215
 -----------------------------
-Contenedor 6: U7Y3S2Gm | Imagen: high_ram_image | ID: 4837506e97ec64307e1046a608f80e56c2e332053a165a8773d8e856f7fd98dd
-PID: 9299
+Creando Contenedor  6: NOxbwIpF | Imagen: high_ram_image | ID: 32c3ecece1a50050b2a94efcdc6d85c75e21c366d763023924913e09741174a4
+PID: 21300
 -----------------------------
-Contenedor 7: 8ZtzPXZv | Imagen: low_ram_image | ID: 0e6af231a697e6e2eea728ecc23690ecc942c0a38570a2230213b7132b2adf51
-PID: 9402
+Creando Contenedor  7: trWV7xCv | Imagen: low_ram_image | ID: 6d08bce8f2d96c081d5eaee69807c1e43d228b5e7bd8e3d8004de61e6f5d8ef6
+PID: 21379
 -----------------------------
-Contenedor 8: GM0fJNSt | Imagen: high_ram_image | ID: a5d03edfb27f1e14ec0c83a823dc28a381358493c9144c23a2c75376647c8233
-PID: 9492
+Creando Contenedor  8: 3eDTa97L | Imagen: high_cpu_image | ID: 071edb2530a9423f6b364e23459a112ed0cc93988b56a804eb88d6ce82982d77
+PID: 21456
 -----------------------------
-Contenedor 9: 4kiIRSuA | Imagen: high_ram_image | ID: 782d7d966212d0fef58d0d01eb067e0e3ef6ff8c378836917ac58853701a7db4
-PID: 9595
+Creando Contenedor  9: aIB5mWK4 | Imagen: low_ram_image | ID: d8d5cde051608ce8f2277dd376f628dd5916cff6a96e04bc7a0aa3cea13893c8
+PID: 21538
 -----------------------------
-Contenedor 10: ySt49scV | Imagen: high_cpu_image | ID: 619d1a136afe62b8b3dee6b2fd218c697e909d3dd3ca979d2c27df0668def19a
-PID: 9687
+Creando Contenedor  10: nFN7U1Bn | Imagen: high_cpu_image | ID: ad552ffc72c42ac65cdcb1297ae229def38224c9d0291a4819c47caf87bc566d
+PID: 21614
 -----------------------------

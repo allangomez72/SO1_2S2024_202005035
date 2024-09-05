@@ -3,12 +3,12 @@ Entrar a la ruta de cada uno donde esta el Dockerfile
 
 Para entrar a la ruta donde se encuentra los contenedores de HIGH
 ```bash
-cd Containers/high/highCPU
+cd Proyecto1/Containers/high/highCPU
 ```
 Pra los de LOW
 
 ```bash
-cd Containers/low/lowCPU
+cd Proyecto1/Containers/low/lowCPU
 ```
 
 Para el de high_CPU
@@ -31,6 +31,10 @@ Para encender docker que a veces esta apagado
 ```bash
 sudo systemctl start docker
 ```
+
+______________________
+Comando opcional para generar los contenedores a manita
+sudo ./generate_containers.sh
 
 -----------------------
 Comandos para Modulo de Kernel

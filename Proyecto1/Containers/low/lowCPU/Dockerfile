@@ -5,4 +5,4 @@ RUN pip install flask
 
 COPY log_cpu.py /log_cpu.py
 
-CMD ["python", "/log_cpu.py"]
+CMD ["python", "log_cpu.py"]

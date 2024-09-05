@@ -5,6 +5,12 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct SystemInfo {
+    #[serde(rename = "Total RAM")]
+    total_ram: u64,
+    #[serde(rename = "Free RAM")]
+    free_ram: u64,
+    #[serde(rename = "Used Ram")]
+    used_ram: u64,
     #[serde(rename = "Processes")]
     processes: Vec<Process>
 }
@@ -23,6 +29,7 @@ struct SystemInfo {
     Serde nos deja implementar macros a cada campo de la estructura de datos para poder renombrar
     los campos en el JSON que se genere.
 */
+//Siguiendo la nueva estructura json es esta:
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 struct Process {
     #[serde(rename = "PID")]
@@ -31,12 +38,17 @@ struct Process {
     name: String,
     #[serde(rename = "Cmdline")]
     cmd_line: String,
+    #[serde(rename = "VSZ")]
+    vsz: u64,
+    #[serde(rename = "RSS")]
+    rss: u64,
     #[serde(rename = "MemoryUsage")]
     memory_usage: f64,
     #[serde(rename = "CPUUsage")]
     cpu_usage: f64,
 }
 
+//no lo cambio por que es indiferente solo es para capturar los procesos que se matan
 #[derive(Debug, Serialize, Clone)]
 struct LogProcess {
     pid: u32,
@@ -68,44 +80,12 @@ impl Process {
 // IMPLEMENTACIÓN DE TRAITS
 
 /* 
-    Contamos con 2 ordenamientos, el Ord y el PartialOrd. El primero es para poder comparar
-    los procesos en base a su uso de CPU y memoria, mientras que el segundo es para poder
-    comparar los procesos en base a su uso de CPU y memoria de manera parcial.
-
-    ¿Por qué de manera parcial si todos los valores existen? 
-        - Porque en el caso de que haya un valor NaN, la comparación no se puede hacer de manera total.
-        - Por ejemplo, si un proceso tiene un uso de memoria de 10 y otro de NaN, no se puede comparar
-          de manera total, pero sí de manera parcial.
-        - Al manejar números decimales pueden existir valores NaN, por lo que es importante manejarlos.
-*/
-
-/* 
     Este trait no lleva ninguna implementación, pero es necesario para poder comparar ya que debe satisfacer
     la propiedad de reflexividad, es decir, que un proceso es igual a sí mismo.
 */
 impl Eq for Process {}  
 
 
-/* 
-    Ord Trait:
-    Funcionalidad: Proporciona una comparación total para dos instancias de Process. 
-    Devuelve un std::cmp::Ordering que puede ser Less, Greater o Equal.
-    Ejecución: Si partial_cmp devuelve Some(Ordering), sort usará el resultado de cmp para ordenar los elementos. 
-    La implementación de cmp en Process compara primero el uso de CPU y, si es igual, compara el uso de memoria.
-    
-    ¿Qué significa esto?
-        - Permite comparar procesos basándose en su uso de CPU y memoria.
-        - Si el uso de CPU de un proceso es mayor que el de otro, el proceso con mayor uso de CPU es considerado mayor.
-        - Si el uso de CPU de ambos procesos es igual, se comparan en base a su uso de memoria.
-        - Si tanto el uso de CPU como el de memoria son iguales, los procesos se consideran iguales.
-
-    Detalles de implementación:
-        - Se utiliza unwrap_or para devolver std::cmp::Ordering::Equal en caso de que haya un valor NaN.
-        - El método then_with se usa para comparar en base a la memoria si el uso de CPU es igual.
-        - Los || no son necesarios aquí ya que unwrap_or maneja los valores NaN.
-
-    Se pueden agregar más condiciones para comparar en base a otros campos si es necesario.
-*/
 impl Ord for Process {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.cpu_usage.partial_cmp(&other.cpu_usage).unwrap_or(std::cmp::Ordering::Equal)
@@ -113,20 +93,6 @@ impl Ord for Process {
     }
 }
 
-/* 
-    PartialOrd Trait:
-
-    Funcionalidad: Permite la comparación parcial de dos instancias de Process. Devuelve un Option<std::cmp::Ordering>, 
-    que puede ser Some(Ordering) si la comparación es válida o None si no lo es (por ejemplo, si hay un valor NaN).
-    Ejecución: La función sort primero intentará usar partial_cmp para comparar los elementos. Si partial_cmp devuelve None, la comparación falla.
-    
-    ¿Qué significa esto?
-        - La comparación puede fallar si hay un valor NaN.
-        - Por ejemplo, si un proceso tiene un uso de memoria de 10 y otro tiene NaN, la comparación fallará.
-
-    Detalles de implementación:
-        - Se delega la comparación al método cmp del trait Ord, envolviendo el resultado en Some.
-*/
 impl PartialOrd for Process {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
@@ -169,27 +135,6 @@ fn analyzer( system_info:  SystemInfo) {
     let mut processes_list: Vec<Process> = system_info.processes;
 
 
-    /* 
-        Cuando llamas a la función sort en un vector de Process, se ejecutarán los traits 
-        Ord y PartialOrd en el siguiente orden y con la siguiente funcionalidad:
-
-
-        La función sort del vector llama internamente a partial_cmp para comparar los elementos.
-        partial_cmp delega la comparación a cmp del trait Ord.
-
-
-        Comparación con cmp:
-
-        cmp compara primero el uso de CPU (cpu_usage).
-        Si el uso de CPU es igual, compara el uso de memoria (memory_usage).
-        Si ambos son iguales, devuelve Ordering::Equal.
-        Funcionalidad de los Traits
-        PartialOrd: Permite la comparación parcial, necesaria para manejar casos donde los valores pueden ser NaN.
-        Ord: Proporciona una comparación total, necesaria para ordenar completamente los elementos del vector.
-
-        Cuando llamas a processes_list.sort(), el método sort usará partial_cmp y cmp para comparar y 
-        ordenar los procesos en el vector processes_list basándose en el uso de CPU y memoria.
-    */
     processes_list.sort();
 
 
@@ -198,16 +143,30 @@ fn analyzer( system_info:  SystemInfo) {
 
 
     // Hacemos un print de los contenedores de bajo consumo en las listas.
-    println!("Bajo consumo");
+    println!("*************** Bajo consumo ***************");
     for process in lowest_list {
-        println!("PID: {}, Name: {}, container ID: {}, Memory Usage: {}, CPU Usage: {}", process.pid, process.name, process.get_container_id(), process.memory_usage, process.cpu_usage);
+        println!("PID: {}, Name: {}, Container ID: {}, Memory Usage: {}, CPU Usage: {}, VSZ: {}, RSS: {}", 
+            process.pid, 
+            process.name, 
+            process.get_container_id(), 
+            process.memory_usage, 
+            process.cpu_usage, 
+            process.vsz, 
+            process.rss);
     }
 
     println!("------------------------------");
 
-    println!("Alto consumo");
+    println!("*************** Alto consumo ***************");
     for process in highest_list {
-        println!("PID: {}, Name: {}, Icontainer ID {}, Memory Usage: {}, CPU Usage: {}", process.pid, process.name,process.get_container_id(),process.memory_usage, process.cpu_usage);
+        println!("PID: {}, Name: {}, Container ID: {}, Memory Usage: {}, CPU Usage: {}, VSZ: {}, RSS: {}", 
+            process.pid, 
+            process.name, 
+            process.get_container_id(), 
+            process.memory_usage, 
+            process.cpu_usage, 
+            process.vsz, 
+            process.rss);
     }
 
     println!("------------------------------");
@@ -270,9 +229,15 @@ fn analyzer( system_info:  SystemInfo) {
     // TODO: ENVIAR LOGS AL CONTENEDOR REGISTRO
 
     // Hacemos un print de los contenedores que matamos.
-    println!("Contenedores matados");
+    println!("=============== Contenedores matados ===============");
+    
     for process in log_proc_list {
-        println!("PID: {}, Name: {}, Container ID: {}, Memory Usage: {}, CPU Usage: {} ", process.pid, process.name, process.container_id,  process.memory_usage, process.cpu_usage);
+        println!("PID: {}, Name: {}, Container ID: {}, Memory Usage: {}, CPU Usage: {} ", 
+            process.pid, 
+            process.name, 
+            process.container_id,  
+            process.memory_usage, 
+            process.cpu_usage);
     }
 
     println!("------------------------------");
@@ -325,7 +290,7 @@ fn parse_proc_to_struct(json_str: &str) -> Result<SystemInfo, serde_json::Error>
 fn main() {
 
     // TODO: antes de iniciar el loop, ejecutar el docker-compose.yml y obtener el id del contenedor registro.
-
+    
     // TODO: Utilizar algo para capturar la señal de terminación y matar el contenedor registro y cronjob.
 
     loop {
@@ -342,6 +307,11 @@ fn main() {
         // Dependiendo de si se pudo deserializar el contenido del archivo proc o no, se ejecuta una u otra rama.
         match system_info {
             Ok( info) => {
+                println!("============= GENERAL INFORMATION =============");
+                println!("Total RAM: {} KB", info.total_ram);
+                println!("Free RAM: {} KB", info.free_ram);
+                println!("Used RAM: {} KB", info.used_ram);
+
                 analyzer(info);
             }
             Err(e) => println!("Failed to parse JSON: {}", e),

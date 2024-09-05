@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Lista de imágenes construidas
-IMAGES=("high_cpu_image" "high_ram_image" "low_cpu_image", "low_ram_image")
+IMAGES=("high_cpu_image" "high_ram_image" "low_cpu_image" "low_ram_image")
 
 # Archivo de salida para registrar los contenedores creados
 output_file="container_log.txt"
@@ -19,6 +19,11 @@ for i in $(seq 1 $CONTAINERS_TOTAL); do
 
     # Creación y ejecución del contenedor
     CONTAINER_ID=$(docker run -d --name "$CONTAINER_NAME" "$IMAGE")
+    # Esto sucede si algo llega a fallar
+    if [ $? -ne 0 ]; then
+    echo "Error al crear el contenedor con la imagen $IMAGE" | tee -a $output_file
+    continue
+    fi
 
     # Registro de la creación del contenedor
     echo "Creando Contenedor  $i: $CONTAINER_NAME | Imagen: $IMAGE | ID: $CONTAINER_ID" | tee -a $output_file

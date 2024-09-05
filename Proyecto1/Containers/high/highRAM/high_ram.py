@@ -7,6 +7,6 @@ large_data = []
 
 while True:
     #Generar una matriz grande y añadir a la lista
-    large_data.append(np.random.rand(100,100))
+    large_data.append(np.random.rand(150,150))
     #Esperar
     time.sleep(1)
