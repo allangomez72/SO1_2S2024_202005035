@@ -54,3 +54,40 @@ cat /proc/sysinfo_202005035
 Para lo del rust se debe compilar y ya
 
 cargo run
+
+
+=======================
+PARA LO DE PYTHON
+=======================
+para entra al env de la carpeta del servicio
+source env/bin/activate
+
+crear la imagen
+sudo docker build -t py_image .
+
+Para iniciar el contenedor y ponerlo en el puerto
+docker run -d --name <nombre> -p <puertocontenedor>:<puertopc> <imagendocker>
+docker run -d --name py_container -p 8000:8000 py_image
+
+Esto es para entra a la consola del contenedor por asi decirlo:
+sudo docker exce -it <nombredelcontenedor> bash
+sudo docker exce -it py_container bash
+
+Para ver lo que hay en la carpeta de logs:
+cat logs/logs.json
+
+para el docker compose
+como ya esta creado ya solo se debe de dar el siguiente comando
+para detener:
+sudo docker compose down
+
+y para iniciar
+sudo docker compose up -d
+
+
+
+comando para borrar todos los procesos:
+sudo docker rm $(sudo docker ps -a -q)
+
+Y para detner:
+sudo docker stop $(sudo docker ps -a -q)

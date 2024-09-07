@@ -1,0 +1,88 @@
+{
+"Total RAM": 5990612 KB,
+"Free RAM": 731780 KB,
+"Used Ram": 5258832 KB,
+"Processes": [
+  {
+    "PID": 7517,
+    "Name": "containerd-shim",
+    "Cmdline": "/usr/bin/containerd-shim-runc-v2 -namespace moby -id e1592c1c286c9403d17e012d945ba362215f5e03ccdf0e27c4dbd3bc322bbc81 -address /run/containerd/containerd.sock ",
+    "VSZ": 1238244 KB,
+    "RSS": 19752 KB,
+    "MemoryUsage": 0.32%,
+    "CPUUsage": 0.07%
+  },
+  {
+    "PID": 7605,
+    "Name": "containerd-shim",
+    "Cmdline": "/usr/bin/containerd-shim-runc-v2 -namespace moby -id f2af44c9b8fc13b3e2be1e6c32844005f9e8987e9b485a565484fe3f083b203a -address /run/containerd/containerd.sock ",
+    "VSZ": 1237988 KB,
+    "RSS": 19880 KB,
+    "MemoryUsage": 0.33%,
+    "CPUUsage": 0.07%
+  },
+  {
+    "PID": 7690,
+    "Name": "containerd-shim",
+    "Cmdline": "/usr/bin/containerd-shim-runc-v2 -namespace moby -id f7515eeeae2206dc28ff918d76e1565901e4ed7ca3ce278b9aa2610da3374a73 -address /run/containerd/containerd.sock ",
+    "VSZ": 1238244 KB,
+    "RSS": 19812 KB,
+    "MemoryUsage": 0.33%,
+    "CPUUsage": 0.15%
+  },
+  {
+    "PID": 7767,
+    "Name": "containerd-shim",
+    "Cmdline": "/usr/bin/containerd-shim-runc-v2 -namespace moby -id 39504ad61cd7b61d74573ec042c913abc1ca594b67f1d7dc4146496bf4d64efa -address /run/containerd/containerd.sock ",
+    "VSZ": 1238500 KB,
+    "RSS": 20400 KB,
+    "MemoryUsage": 0.34%,
+    "CPUUsage": 0.15%
+  },
+  {
+    "PID": 7854,
+    "Name": "containerd-shim",
+    "Cmdline": "/usr/bin/containerd-shim-runc-v2 -namespace moby -id 4726294a71c2d3e1364767c13841d59065bc0f0daf755c277e5c8691956a9054 -address /run/containerd/containerd.sock ",
+    "VSZ": 1238244 KB,
+    "RSS": 19612 KB,
+    "MemoryUsage": 0.32%,
+    "CPUUsage": 0.07%
+  },
+  {
+    "PID": 7938,
+    "Name": "containerd-shim",
+    "Cmdline": "/usr/bin/containerd-shim-runc-v2 -namespace moby -id 2343ccd6abcfb4fd8073f902ed1408272f42d0b391f0db22df8d84238a625a6e -address /run/containerd/containerd.sock ",
+    "VSZ": 1238244 KB,
+    "RSS": 19556 KB,
+    "MemoryUsage": 0.32%,
+    "CPUUsage": 0.15%
+  },
+  {
+    "PID": 8020,
+    "Name": "containerd-shim",
+    "Cmdline": "/usr/bin/containerd-shim-runc-v2 -namespace moby -id da710caa43d9511ddd3263f1e9726d498e51b162d8bfcbcb17597a12b4b101af -address /run/containerd/containerd.sock ",
+    "VSZ": 1238244 KB,
+    "RSS": 20128 KB,
+    "MemoryUsage": 0.33%,
+    "CPUUsage": 0.23%
+  },
+  {
+    "PID": 8190,
+    "Name": "containerd-shim",
+    "Cmdline": "/usr/bin/containerd-shim-runc-v2 -namespace moby -id dad01c91998b64c0b8cee2247ff281429bebf42fed085a5d36c32812e280e049 -address /run/containerd/containerd.sock ",
+    "VSZ": 1238244 KB,
+    "RSS": 20280 KB,
+    "MemoryUsage": 0.33%,
+    "CPUUsage": 0.07%
+  },
+  {
+    "PID": 8276,
+    "Name": "containerd-shim",
+    "Cmdline": "/usr/bin/containerd-shim-runc-v2 -namespace moby -id 596a7c90a9d113c556307b21c23798e92957844bed757aa28671e09ccbdc21f5 -address /run/containerd/containerd.sock ",
+    "VSZ": 1238244 KB,
+    "RSS": 19800 KB,
+    "MemoryUsage": 0.33%,
+    "CPUUsage": 0.15%
+  }
+]
+}

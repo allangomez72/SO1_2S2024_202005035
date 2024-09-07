@@ -2,6 +2,18 @@ use std::fs::File;
 use std::io::{self, Read};
 use std::path::Path;
 use serde::{Deserialize, Serialize};
+use std::error::Error;
+use reqwest::blocking::Client;
+use chrono::Utc;
+use serde_json::json;
+
+use std::process::{Command, Stdio};
+use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
+use std::thread;
+use std::time::Duration;
+use ctrlc;
+
+use std::os::unix::process::ExitStatusExt;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct SystemInfo {
@@ -15,7 +27,7 @@ struct SystemInfo {
     processes: Vec<Process>
 }
 
-/* 
+/*
     Además de esto, estamos implementando los traits Eq, Ord y PartialOrd para poder comparar
     los procesos en base a su uso de CPU y memoria.
 
@@ -54,13 +66,15 @@ struct LogProcess {
     pid: u32,
     container_id: String,
     name: String,
+    vsz:u64,
+    rss:u64,
     memory_usage: f64,
     cpu_usage: f64,
 }
 
 // IMPLEMENTACIÓN DE MÉTODOS
 
-/* 
+/*
     Función para sobreescribir el campo cmd_line de cada proceso por el id del contenedor.
 */
 impl Process {
@@ -79,11 +93,11 @@ impl Process {
 
 // IMPLEMENTACIÓN DE TRAITS
 
-/* 
+/*
     Este trait no lleva ninguna implementación, pero es necesario para poder comparar ya que debe satisfacer
     la propiedad de reflexividad, es decir, que un proceso es igual a sí mismo.
 */
-impl Eq for Process {}  
+impl Eq for Process {}
 
 
 impl Ord for Process {
@@ -102,12 +116,38 @@ impl PartialOrd for Process {
 
 // FUNCIONES
 
-/* 
+/*
     Función para matar un contenedor de Docker.
     - id: El identificador del contenedor que se quiere matar.
     - Regresa un std::process::Output que contiene la salida del comando que se ejecutó.
 */
 fn kill_container(id: &str) -> std::process::Output {
+    //Obtener el ID del contenedor FastAPI
+    let fastapi_container_id = std::process::Command::new("docker")
+    .arg("ps")
+    .arg("--filter")
+    .arg("name=log_container")
+    .arg("--format")
+    .arg("{{.ID}}")
+    .output()
+    .expect("fallo al obtener el ID del contenedor FastAPI");
+
+    // Convertir el resultado a String
+    let fastapi_id_str = String::from_utf8_lossy(&fastapi_container_id.stdout).trim().to_string();
+
+    // Imprimir el ID del contenedor FastAPI
+    println!("ID del contenedor FastAPI: {}", fastapi_id_str);
+
+    // Continuar con la validación o cualquier otro proceso
+    if id.starts_with(&fastapi_id_str) {
+        println!("El contenedor FastAPI no será detenido.");
+        return std::process::Output {
+            status: std::process::ExitStatus::from_raw(0),
+            stdout: Vec::new(),
+            stderr: Vec::new(),
+        };
+    }
+
     let  output = std::process::Command::new("sudo")
         .arg("docker")
         .arg("stop")
@@ -127,7 +167,7 @@ fn analyzer( system_info:  SystemInfo) {
     let mut log_proc_list: Vec<LogProcess> = Vec::new();
 
 
-    /* 
+    /*
         Creamos un vector vacío para guardar los logs del sistema.
         En este caso, no se guardará nada, pero se puede modificar para guardar
         información del sistema.
@@ -145,35 +185,35 @@ fn analyzer( system_info:  SystemInfo) {
     // Hacemos un print de los contenedores de bajo consumo en las listas.
     println!("*************** Bajo consumo ***************");
     for process in lowest_list {
-        println!("PID: {}, Name: {}, Container ID: {}, Memory Usage: {}, CPU Usage: {}, VSZ: {}, RSS: {}", 
-            process.pid, 
-            process.name, 
-            process.get_container_id(), 
-            process.memory_usage, 
-            process.cpu_usage, 
-            process.vsz, 
-            process.rss);
+        println!("PID: {}, Name: {}, Container ID: {}, Memory Usage: {}, CPU Usage: {}, VSZ: {}, RSS: {}",
+                 process.pid,
+                 process.name,
+                 process.get_container_id(),
+                 process.memory_usage,
+                 process.cpu_usage,
+                 process.vsz,
+                 process.rss);
     }
 
     println!("------------------------------");
 
     println!("*************** Alto consumo ***************");
     for process in highest_list {
-        println!("PID: {}, Name: {}, Container ID: {}, Memory Usage: {}, CPU Usage: {}, VSZ: {}, RSS: {}", 
-            process.pid, 
-            process.name, 
-            process.get_container_id(), 
-            process.memory_usage, 
-            process.cpu_usage, 
-            process.vsz, 
-            process.rss);
+        println!("PID: {}, Name: {}, Container ID: {}, Memory Usage: {}, CPU Usage: {}, VSZ: {}, RSS: {}",
+                 process.pid,
+                 process.name,
+                 process.get_container_id(),
+                 process.memory_usage,
+                 process.cpu_usage,
+                 process.vsz,
+                 process.rss);
     }
 
     println!("------------------------------");
 
-    /* 
+    /*
         En la lista de bajo consumo, matamos todos los contenedores excepto los 3 primeros.
-        antes 
+        antes
         | 1 | 2 | 3 | 4 | 5 |
 
         después
@@ -187,21 +227,23 @@ fn analyzer( system_info:  SystemInfo) {
                 pid: process.pid,
                 container_id: process.get_container_id().to_string(),
                 name: process.name.clone(),
+                vsz: process.vsz,
+                rss: process.rss,
                 memory_usage: process.memory_usage,
                 cpu_usage: process.cpu_usage,
             };
-    
+
             log_proc_list.push(log_process.clone());
 
             // Matamos el contenedor.
             let _output = kill_container(&process.get_container_id());
 
         }
-    } 
+    }
 
-    /* 
+    /*
         En la lista de alto consumo, matamos todos los contenedores excepto los 2 últimos.
-        antes 
+        antes
         | 1 | 2 | 3 | 4 | 5 |
 
         después
@@ -214,38 +256,58 @@ fn analyzer( system_info:  SystemInfo) {
                 pid: process.pid,
                 container_id: process.get_container_id().to_string(),
                 name: process.name.clone(),
+                vsz: process.vsz,
+                rss: process.rss,
                 memory_usage: process.memory_usage,
                 cpu_usage: process.cpu_usage
             };
-    
+
             log_proc_list.push(log_process.clone());
 
             // Matamos el contenedor.
             let _output = kill_container(&process.get_container_id());
-
         }
     }
 
     // TODO: ENVIAR LOGS AL CONTENEDOR REGISTRO
+    send_logs(&log_proc_list);
 
     // Hacemos un print de los contenedores que matamos.
     println!("=============== Contenedores matados ===============");
-    
+
     for process in log_proc_list {
-        println!("PID: {}, Name: {}, Container ID: {}, Memory Usage: {}, CPU Usage: {} ", 
-            process.pid, 
-            process.name, 
-            process.container_id,  
-            process.memory_usage, 
-            process.cpu_usage);
+        println!("PID: {}, Name: {}, Container ID: {}, Memory Usage: {}, CPU Usage: {} ",
+                 process.pid,
+                 process.name,
+                 process.container_id,
+                 process.memory_usage,
+                 process.cpu_usage);
     }
 
     println!("------------------------------");
 
-    
+
+}
+//Eseta es mi fucnion para enviar los logs al servicio de python
+fn send_logs(processes: &Vec<LogProcess>) -> Result<(), Box<dyn Error>> {
+    let client = Client::new();
+    //let timestamp = Utc::now().to_rfc3339();
+
+    let log_message = json!(processes);
+
+    let response = client
+        .post("http://localhost:8000/logs")
+        .json(&log_message)
+        .send()?;
+
+    if !response.status().is_success() {
+        println!("La respuesta del servidor no fue exitosa: {}", response.status());
+    }
+
+    Ok(())
 }
 
-/*  
+/*
     Función para leer el archivo proc
     - file_name: El nombre del archivo que se quiere leer.
     - Regresa un Result<String> que puede ser un error o el contenido del archivo.
@@ -254,7 +316,7 @@ fn read_proc_file(file_name: &str) -> io::Result<String> {
     // Se crea un Path con el nombre del archivo que se quiere leer.
     let path  = Path::new("/proc").join(file_name);
 
-    /* 
+    /*
         Se abre el archivo en modo lectura y se guarda en la variable file.
         En caso de que haya un error al abrir el archivo, se regresa un error.
         El signo de interrogación es un atajo para regresar un error en caso de que haya uno.
@@ -272,7 +334,7 @@ fn read_proc_file(file_name: &str) -> io::Result<String> {
     Ok(content)
 }
 
-/* 
+/*
     Función para deserializar el contenido del archivo proc a un vector de procesos.
     - json_str: El contenido del archivo proc en formato JSON.
     - Regresa un Result<> que puede ser un error o un SystemInfo.
@@ -284,8 +346,6 @@ fn parse_proc_to_struct(json_str: &str) -> Result<SystemInfo, serde_json::Error>
     // Se regresa el SystemInfo.
     Ok(system_info)
 }
-
-
 
 fn main() {
 
