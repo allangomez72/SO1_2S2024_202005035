@@ -14,8 +14,8 @@ class LogProcess(BaseModel):
     #action: str
     #timestamp: str
 
-"""class LogSystem(BaseModel):
+class LogSystem(BaseModel):
     total_ram: int
     free_ram: int
     used_ram: int
-"""
+    timestamp: str

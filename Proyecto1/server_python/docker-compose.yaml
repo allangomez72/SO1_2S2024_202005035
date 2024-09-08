@@ -6,4 +6,6 @@ services:
       - "8000:8000"
     volumes:
       - ./logs:/code/logs
-    command: [ "fastapi", "run", "main.py", "--port", "8000"]
+      - ./img:/code/img
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+

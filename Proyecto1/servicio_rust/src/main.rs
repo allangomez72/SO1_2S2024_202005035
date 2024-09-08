@@ -4,8 +4,9 @@ use std::path::Path;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 use reqwest::blocking::Client;
-use chrono::Utc;
-use serde_json::json;
+use chrono::{DateTime, Utc};
+use reqwest::StatusCode;
+use serde_json::{Value, json};
 
 use std::process::{Command, Stdio};
 use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
@@ -70,6 +71,14 @@ struct LogProcess {
     rss:u64,
     memory_usage: f64,
     cpu_usage: f64,
+}
+
+#[derive(Debug, Serialize, Clone)]
+struct MemInfo {
+    total_ram: u64,
+    free_ram: u64,
+    used_ram: u64,
+    timestamp:String,
 }
 
 // IMPLEMENTACIÓN DE MÉTODOS
@@ -183,7 +192,7 @@ fn analyzer( system_info:  SystemInfo) {
 
 
     // Hacemos un print de los contenedores de bajo consumo en las listas.
-    println!("*************** Bajo consumo ***************");
+    println!("\n*************** Bajo consumo ***************");
     for process in lowest_list {
         println!("PID: {}, Name: {}, Container ID: {}, Memory Usage: {}, CPU Usage: {}, VSZ: {}, RSS: {}",
                  process.pid,
@@ -197,7 +206,7 @@ fn analyzer( system_info:  SystemInfo) {
 
     println!("------------------------------");
 
-    println!("*************** Alto consumo ***************");
+    println!("\n*************** Alto consumo ***************");
     for process in highest_list {
         println!("PID: {}, Name: {}, Container ID: {}, Memory Usage: {}, CPU Usage: {}, VSZ: {}, RSS: {}",
                  process.pid,
@@ -273,7 +282,7 @@ fn analyzer( system_info:  SystemInfo) {
     send_logs(&log_proc_list);
 
     // Hacemos un print de los contenedores que matamos.
-    println!("=============== Contenedores matados ===============");
+    println!("\n=============== Contenedores matados ===============");
 
     for process in log_proc_list {
         println!("PID: {}, Name: {}, Container ID: {}, Memory Usage: {}, CPU Usage: {} ",
@@ -286,6 +295,18 @@ fn analyzer( system_info:  SystemInfo) {
 
     println!("------------------------------");
 
+    //Enviar la informacion de la memoria y tiempo
+    let now: DateTime<Utc> = Utc::now();
+    let formatted_datetime = now.format("%d/%m/%Y %H:%M:%S").to_string();
+    let mem_info = MemInfo{
+        total_ram: system_info.total_ram,
+        free_ram: system_info.free_ram,
+        used_ram: system_info.used_ram,
+        timestamp: formatted_datetime
+    };
+    if let Err(e) = send_meminfo(&mem_info) {
+        eprintln!("Failed to send memory info: {}", e);
+    }
 
 }
 //Eseta es mi fucnion para enviar los logs al servicio de python
@@ -302,6 +323,21 @@ fn send_logs(processes: &Vec<LogProcess>) -> Result<(), Box<dyn Error>> {
 
     if !response.status().is_success() {
         println!("La respuesta del servidor no fue exitosa: {}", response.status());
+    }
+
+    Ok(())
+}
+
+//Funcion para enviar la info de la memoria:
+fn send_meminfo(mem_info: &MemInfo) -> Result<(), Box<dyn Error>>{
+    let client = Client::new();
+    let response = client
+        .post("http://localhost:8000/meminfo")
+        .json(mem_info)
+        .send()?;
+
+    if !response.status().is_success(){
+        println!("La respuesta del servidor no fue exitosa: {}",response.status());
     }
 
     Ok(())
@@ -347,14 +383,59 @@ fn parse_proc_to_struct(json_str: &str) -> Result<SystemInfo, serde_json::Error>
     Ok(system_info)
 }
 
+fn get_img(){
+
+}
+
+
 fn main() {
+    // Creamos una bandera para indicar cuándo se debe detener el proceso.
+    let running = Arc::new(AtomicBool::new(true));
+    let r = running.clone();
 
-    // TODO: antes de iniciar el loop, ejecutar el docker-compose.yml y obtener el id del contenedor registro.
+    // Capturamos la señal de Ctrl+C.
+    ctrlc::set_handler(move || {
+        println!("\n\n\nRecibido Ctrl+C! Deteniendo procesos...");
+        // Cambiamos la bandera para detener el loop.
+        r.store(false, Ordering::SeqCst);
+
+        println!("\n\nGenerando imagenes :D ");
     
-    // TODO: Utilizar algo para capturar la señal de terminación y matar el contenedor registro y cronjob.
+        // Llamamos a las funciones bloqueantes
+        get_img_process().unwrap();
+        get_img_memory().unwrap();
+        // Detenemos el contenedor del servicio de Python.
+        let _ = Command::new("docker-compose")
+            .arg("-f")
+            .arg("../server_python/docker-compose.yaml")  // Ruta relativa al archivo
+            .arg("down")
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
+            .output()
+            .expect("fallo al detener docker-compose");
+    }).expect("Error al configurar el manejador de Ctrl+C");
 
-    loop {
-        
+    //antes del docker-compose y del loop instalar el modulo
+    install_sysinfo();
+
+    // Iniciamos el servicio de Docker Compose.
+    println!("Iniciando Docker Compose...");
+    let _docker_up = Command::new("docker-compose")
+        .arg("-f")
+        .arg("../server_python/docker-compose.yaml")  // Ruta relativa al archivo
+        .arg("up")
+        .arg("-d")  // Modo detacheado
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .output()
+        .expect("fallo al iniciar docker-compose");
+
+    // Esperamos un tiempo fijo para que Docker Compose levante los contenedores.
+    println!("Esperando 5 segundos para asegurar que Docker Compose haya levantado los contenedores...");
+    thread::sleep(Duration::from_secs(5));
+
+    // Loop principal.
+    while running.load(Ordering::SeqCst) {
         // Creamos una estructura de datos SystemInfo con un vector de procesos vacío.
         let system_info: Result<SystemInfo, _>;
 
@@ -366,8 +447,8 @@ fn main() {
 
         // Dependiendo de si se pudo deserializar el contenido del archivo proc o no, se ejecuta una u otra rama.
         match system_info {
-            Ok( info) => {
-                println!("============= GENERAL INFORMATION =============");
+            Ok(info) => {
+                println!("\n============= GENERAL INFORMATION =============");
                 println!("Total RAM: {} KB", info.total_ram);
                 println!("Free RAM: {} KB", info.free_ram);
                 println!("Used RAM: {} KB", info.used_ram);
@@ -378,7 +459,80 @@ fn main() {
         }
 
         // Dormimos el hilo principal por 10 segundos.
-        std::thread::sleep(std::time::Duration::from_secs(10));
+        thread::sleep(Duration::from_secs(10));
     }
 
+    println!("\n\n================ Proceso finalizado ================");
+    uninstall_sysinfo(); //Va desinstalar el modulo cuando termine la ejecucion
+}
+
+// Función para instalar el módulo sysinfo.ko
+fn install_sysinfo() {
+    println!("Instalando el módulo sysinfo.ko...");
+    let _ = Command::new("sudo")
+        .arg("insmod")
+        .arg("/home/gomez/Documentos/SO1_2S2024_202005035/Proyecto1/ModuleKernel/sysinfo.ko")
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .output()
+        .expect("Fallo al instalar sysinfo.ko");
+}
+
+// Función para desinstalar el módulo sysinfo.ko
+fn uninstall_sysinfo() {
+    println!("Desinstalando el módulo sysinfo.ko...");
+    let _ = Command::new("sudo")
+        .arg("rmmod")
+        .arg("sysinfo")
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .output()
+        .expect("Fallo al desinstalar sysinfo.ko");
+}
+
+// Función para obtener información de memoria 
+fn get_img_process() -> Result<(), Box<dyn Error>> {
+    let client = Client::new();
+    let response = client
+        .get("http://localhost:8000/generate_memory_graph")
+        .send()?;
+
+    let status = response.status();
+    let body = response.text()?;
+
+    if !status.is_success() {
+        println!("La respuesta del servidor no fue exitosa: {}", status);
+    } else {
+        let json: Value = serde_json::from_str(&body)?;
+        if json.get("error").is_some() {
+            println!("Error: {}", json["error"].as_str().unwrap_or("Desconocido"));
+        } else if let Some(plot_path) = json.get("plot_path") {
+            println!("Plot path: {}", plot_path.as_str().unwrap_or("No disponible"));
+        }
+    }
+
+    Ok(())
+}
+
+fn get_img_memory() -> Result<(), Box<dyn Error>> {
+    let client = Client::new();
+    let response = client
+        .get("http://localhost:8000/generate_meminfo_graph")
+        .send()?;
+
+    let status = response.status();
+    let body = response.text()?;
+
+    if !status.is_success() {
+        println!("La respuesta del servidor no fue exitosa: {}", status);
+    } else {
+        let json: Value = serde_json::from_str(&body)?;
+        if json.get("error").is_some() {
+            println!("Error: {}", json["error"].as_str().unwrap_or("Desconocido"));
+        } else if let Some(plot_path) = json.get("plot_path") {
+            println!("Plot path: {}", plot_path.as_str().unwrap_or("No disponible"));
+        }
+    }
+
+    Ok(())
 }

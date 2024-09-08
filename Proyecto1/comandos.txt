@@ -47,6 +47,7 @@ Para instalar el .ko
 sudo insmod sysinfo.ko
 sudo dmesg | tail -n 20
 sudo rmmod sysinfo
+sudo insmod sysinfo.ko
 
 para imprimir lo del sysinfo
 cat /proc/sysinfo_202005035
@@ -91,3 +92,5 @@ sudo docker rm $(sudo docker ps -a -q)
 
 Y para detner:
 sudo docker stop $(sudo docker ps -a -q)
+
+cargo build realice
