@@ -1,4 +1,8 @@
 ## Para los contenedores de docker
+
+Para crear las imagenes de docker lo primero que se debe de hacer es un crear el archivo que se va usar para convertirla en la
+imagen que ira dentro del docker file, en lo que respecta al proyecto se uso python para los archivos y sh sleep para los contenedores
+para poder crea las imagenes se debe ir a la ruta donde se encuetra el dockerfile, en este caso:
 Entrar a la ruta de cada uno donde esta el Dockerfile
 
 Para entrar a la ruta donde se encuentra los contenedores de HIGH
@@ -11,6 +15,9 @@ Pra los de LOW
 cd Proyecto1/Containers/low/lowCPU
 ```
 
+Una vez ya se encuentra uno en la ruta adecuada puede ejecutar el siguiente comando, este es el genereal
+sudo docker build -t <nombredelaimagendentrodeldockerfile> .
+y los especificos para cada imagen que se uso:
 Para el de high_CPU
 ```bash
 sudo docker build -t high_cpu_image .
@@ -27,41 +34,93 @@ Para el de low_RAM
 ```bash
 sudo docker build -t low_ram_image .
 ```
+
+Una cosa importante es ver si esta encendido docker por que a veces no lo esta, entonces si no lo esta no se ejecutaran
+de manera correcta los comandos, pero con el siguiente comando se ienciende:
 Para encender docker que a veces esta apagado
 ```bash
 sudo systemctl start docker
 ```
 
+Bueno una vez ya se tienen las imagenes se debe de crear un scrip de bash para poder elegir entre las imagenes que se crearon
+y asi elegir aleatoriamente
+
+Posterior a eso se le da permisos al archivo y se puede ejecutar
 ______________________
 Comando opcional para generar los contenedores a manita
 sudo ./generate_containers.sh
 
+Al inicio no se recomienda meterlo de una vez al cronjob por que puede que sobrecargue el equipo, por eso es mejor ejecutarlo
+de poco en poco hasta que ya se tenga el proyecto mucho mas estructurado
 -----------------------
+
+Luego ya se creo el modulo de kernel, para esto se usa SI para ver la informacion del sistema en este caso tambien para ver lo que es la memoria RAM
+una veez ya se tiene el archivo pues se ejecuta el comando make, para que este se compile y pueda ejecutarse de buena manera, que el archivo sysinfo.ko
+que aparecio se instale en el proc del sistema
+
 Comandos para Modulo de Kernel
-
-Para generar el .ko
-
 make
 
-Para instalar el .ko
-sudo insmod sysinfo.ko
-sudo dmesg | tail -n 20
-sudo rmmod sysinfo
-sudo insmod sysinfo.ko
+para instalar es sudo insmod <nombre>.ko
+
+para desinstalar
+sudo rmmod <nombre>
 
 para imprimir lo del sysinfo
 cat /proc/sysinfo_202005035
 
+
+
+
 Para lo del rust se debe compilar y ya
+Bueno para rust primero se dbee de crear un nuevo proyecto usando cargo run <nombreproyecto>
+y luego ya poder ir modificando, en este caso se usaron alguans depenendencias, cuando se crea el archiov se crea un archivo
+con terminacion .toml y ahi se deben de agregar las depentencias, para este caso se usaron las siguientes:
 
-cargo run
+[dependencies]
+reqwest = { version = "0.11", features = ["blocking", "json"] }
+chrono = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+ctrlc = "3.2"
 
+todas estan ayudan al buen flujo del programa ya cuando se termina se compila y se ejcuta usando cargo run
 
 =======================
 PARA LO DE PYTHON
 =======================
+Para este caso en particular se crearon modelos los cuales estan el la carpeta modles, ahi se logra ver como es la estucutra para
+recibir los mensajes que se envian
+
+dentro de la misma carpeta se puede entara a la carpaeta env
 para entra al env de la carpeta del servicio
 source env/bin/activate
+
+eso se hace para no instalar las cosas de manera local, y para insatalar las dependencias se haces desde ahi, coomo en este caso se uso
+fastapi, mathplotlib se instalaron esas dos
+y bueno para  generar las dependencasi se uso
+
+UNCOMANDO > requirements.txt
+
+Luego ya se crea el docker file, donde se va copiar la imagen del servicio que se creo que manera local, y con ayuda de un docker-compose
+se ejecutara de manera automatica
+
+Pra ejecutar el docker compose se debe usar
+sudo docker compose build
+
+luego ya se puede levantar el sevicio
+sudo docker compose up -d
+
+y para cancelarlo es el siguiente:
+sudo docker compose down
+
+
+Otra cosa importante es para automatizar todo tanto levantar el docker compose, ejecutar la instalacion del modulo .ko
+se deben hacer desde el rust
+
+ademas cmo se menciono al inicio antes se generabam los contenedores a mano, pero al finalizar ya se puede incluir para que se
+agrege al cronjob y se este ejecutando.
+
 
 crear la imagen
 sudo docker build -t py_image .
