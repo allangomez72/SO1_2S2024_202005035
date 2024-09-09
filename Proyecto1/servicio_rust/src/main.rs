@@ -398,16 +398,18 @@ fn main() {
         println!("\n\n\nRecibido Ctrl+C! Deteniendo procesos...");
         // Cambiamos la bandera para detener el loop.
         r.store(false, Ordering::SeqCst);
+        // Desinstalamos el cronjob
+        uninstall_cronjob();
 
         println!("\n\nGenerando imagenes :D ");
-    
         // Llamamos a las funciones bloqueantes
         get_img_process().unwrap();
         get_img_memory().unwrap();
+        
         // Detenemos el contenedor del servicio de Python.
         let _ = Command::new("docker-compose")
             .arg("-f")
-            .arg("../server_python/docker-compose.yaml")  // Ruta relativa al archivo
+            .arg("/home/gomez/Documentos/SO1_2S2024_202005035/Proyecto1/server_python/docker-compose.yaml")  // Ruta relativa al archivo
             .arg("down")
             .stdout(Stdio::inherit())
             .stderr(Stdio::inherit())
@@ -417,12 +419,13 @@ fn main() {
 
     //antes del docker-compose y del loop instalar el modulo
     install_sysinfo();
+    install_cronjob();
 
     // Iniciamos el servicio de Docker Compose.
     println!("Iniciando Docker Compose...");
     let _docker_up = Command::new("docker-compose")
         .arg("-f")
-        .arg("../server_python/docker-compose.yaml")  // Ruta relativa al archivo
+        .arg("/home/gomez/Documentos/SO1_2S2024_202005035/Proyecto1/server_python/docker-compose.yaml")  // Ruta relativa al archivo
         .arg("up")
         .arg("-d")  // Modo detacheado
         .stdout(Stdio::inherit())
@@ -535,4 +538,38 @@ fn get_img_memory() -> Result<(), Box<dyn Error>> {
     }
 
     Ok(())
+}
+
+// Función para instalar el cronjob
+fn install_cronjob() {
+    let cron_job = "* * * * * /bin/bash /home/gomez/Documentos/SO1_2S2024_202005035/Proyecto1/Containers/generate_containers.sh\n";
+    
+    // Agregamos el cronjob directamente al crontab
+    let status = Command::new("sh")
+        .arg("-c")
+        .arg(format!("(crontab -l 2>/dev/null; echo \"{}\") | crontab -", cron_job))
+        .status()
+        .expect("Failed to install cronjob");
+
+    if status.success() {
+        println!("Cronjob instalado.");
+    } else {
+        println!("Error al instalar el cronjob.");
+    }
+}
+
+// Función para desinstalar el cronjob
+fn uninstall_cronjob() {
+    // Elimina el cronjob que contiene el nombre del script
+    let status = Command::new("sh")
+        .arg("-c")
+        .arg("crontab -l | grep -v 'generate_containers.sh' | crontab -")
+        .status()
+        .expect("Failed to uninstall cronjob");
+
+    if status.success() {
+        println!("Cronjob desinstalado.");
+    } else {
+        println!("Error al desinstalar el cronjob.");
+    }
 }
