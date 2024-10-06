@@ -1,11 +1,16 @@
-apiVersion: v1 
-kind: Service 
+apiVersion: networking.k8s.io/v1 
+kind: Ingress 
 metadata:
-  name: nginx-service       # Nombre del servicio, se puede cambiar pero debe coincidir con el backend del Ingress
-spec: 
-  type: LoadBalancer        # Tipo de servicio, LoadBalancer crea una IP pública en la nube para el acceso
-  ports:
-    - port: 80              # Puerto del servicio que estará disponible externamente
-      targetPort: 80         # Puerto donde está escuchando el contenedor (debe coincidir con el puerto del contenedor en el Deployment)
-  selector:
-    app: nginx              # Selecciona los pods del Deployment con esta etiqueta
+  name: nginx-ingress       # Nombre del ingress, se puede cambiar
+spec:
+  rules:
+    - host: nginx.local     # El nombre del host que puede cambiar, será la dirección desde la que accedes
+      http:
+        paths:
+          - path: / 
+            pathType: Prefix 
+            backend:
+              service:
+                name: nginx-service  # Debe coincidir con el nombre del servicio expuesto en el archivo service.yaml
+                port:
+                  number: 80         # Puerto del servicio
