@@ -1,19 +1,19 @@
 apiVersion: apps/v1 
 kind: Deployment 
 metadata:
-  name: nginx-deployment
+  name: nginx-deployment   # Nombre del deployment, se puede cambiar pero debe coincidir en los otros archivos si se menciona
 spec:
-  replicas: 1 
+  replicas: 1              # Número de réplicas de NGINX que quieres ejecutar
   selector:
     matchLabels: 
-      app: nginx
+      app: nginx           # Selector para enlazar este Deployment con el Service, debe coincidir con "app" en otros archivos
   template: 
     metadata:
       labels:
-        app: nginx 
+        app: nginx         # Etiqueta para identificar los Pods que se crean
     spec:
       containers:
         - name: nginx
-          image: nginx:latest
+          image: nginx:latest  # Imagen del contenedor NGINX, puedes cambiar a una versión específica de NGINX si lo deseas
           ports:
-            - containerPort: 80
+            - containerPort: 80  # Puerto expuesto por el contenedor, generalmente 80 para NGINX
