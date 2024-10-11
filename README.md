@@ -1,11 +1,13 @@
 # Laboratorio Sistemas Operativos 1
 
-## [Tarea 1](/Tarea1)
+## Actividades 
 
-## [Tarea 2](/Tarea2)
+### [Tarea 1](/Tarea1)
 
-## [Tarea 3](/Tarea3)
+### [Tarea 2](/Tarea2)
 
-## [Tarea 4](/Tarea4)
+### [Tarea 3](/Tarea3)
 
-## [Proyecto 1](/Proyecto1)
+### [Tarea 4](/Tarea4)
+
+### [Proyecto 1](/Proyecto1)
