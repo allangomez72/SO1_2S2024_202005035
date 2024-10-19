@@ -18,6 +18,19 @@ type Data struct {
 	Discipline int32  `json:"discipline"`
 }
 
+func getServerForDiscipline(discipline int32) string {
+	switch discipline {
+	case 1:
+		return "localhost:50051" //servidor para natacion luego camhbiar el localhost
+	case 2:
+		return "localhost:50052" //servidor para el atletismo
+	case 3:
+		return "localhost:50053" //servidor para el boxeo
+	default:
+		return "localhost:50051" //por si da error
+	}
+}
+
 // metodo para enviar los datos al server
 func sendData_To_Server(fiberCtx *fiber.Ctx) error {
 	var body Data
@@ -27,8 +40,11 @@ func sendData_To_Server(fiberCtx *fiber.Ctx) error {
 		})
 	}
 
+	//Obtener el servidor correcto  dependiendo la disciplina que se ingrese
+	//serverAddress := getServerForDiscipline(body.Discipline) //-> aun no se usa pero es para ver a donde va cada cosa
+
 	//Establecer la conexion gRPC con el servidor
-	conn, err := grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials())) //para cuando ya tenga las rutas de los deploymets cambiar
+	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials())) //para cuando ya tenga las rutas de los deploymets cambiar
 	if err != nil {
 		log.Fatalf("No se puede conectar: %v", err)
 	}
