@@ -47,7 +47,7 @@ func sendData_To_Server(fiberCtx *fiber.Ctx) error {
 	//serverAddress := getServerForDiscipline(body.Discipline) //-> aun no se usa pero es para ver a donde va cada cosa
 
 	//Establecer la conexion gRPC con el servidor
-	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials())) //para cuando ya tenga las rutas de los deploymets cambiar
+	conn, err := grpc.Dial("grpc-server:50051", grpc.WithTransportCredentials(insecure.NewCredentials())) //para cuando ya tenga las rutas de los deploymets cambiar
 	if err != nil {
 		log.Fatalf("No se puede conectar: %v", err)
 	}

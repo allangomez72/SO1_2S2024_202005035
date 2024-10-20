@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grpc-client
+  namespace: grpc-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grpc-client
+  template:
+    metadata:
+      name: grpc-client
+      labels:
+        app: grpc-client
+    spec:
+      containers:
+        - name: grpc-client
+          image: allangomez/client:v1.1
+          env:
+            - name: GRPC_SERVER_HOST
+              value: "grpc-server:50051" #nombre para el sercivio del servidor
+          ports:
+            - containerPort: 3000
+          resources:
+            limits:
+                memory: "128Mi"
+                cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grpc-client
+  namespace: grpc-app
+spec:
+  selector:
+    app: grpc-client
+  ports:
+    - port: 3000 # Este es el puerto del cliente Go está escuchando
+      targetPort: 3000
+  type: LoadBalancer # O ClusterIP pero es que se no se puede acceder fuera del cluster

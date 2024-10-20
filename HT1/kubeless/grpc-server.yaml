@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grpc-server
+  namespace: grpc-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grpc-server
+  template:
+    metadata:
+      name: grpc-server
+      labels:
+        app: grpc-server
+    spec:
+      containers:
+        - name: grpc-server
+          image: allangomez/server:v1.0
+          ports:
+            - containerPort: 50051
+              protocol: TCP
+          resources:
+            limits:
+                memory: "128Mi"
+                cpu: "500m"
+
+      

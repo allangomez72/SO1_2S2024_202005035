@@ -20,7 +20,7 @@ type server struct {
 }
 
 // Metodo que recibe la solicutud del estudiante
-func (ser *server) SendStudents(ctx context.Context, req *pb.Student) (*pb.StudentResponse, error) {
+func (ser *server) SendUserInfo(ctx context.Context, req *pb.Student) (*pb.StudentResponse, error) {
 	//mostrar los datos recibidos
 	log.Printf("Recieved: %v", req)
 	log.Printf("Student name: %s", req.Name)
