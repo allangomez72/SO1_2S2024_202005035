@@ -29,7 +29,7 @@ func (ser *server) SendStudents(ctx context.Context, req *pb.Student) (*pb.Stude
 	log.Printf("Student discipline: %d", req.Discipline)
 
 	return &pb.StudentResponse{
-		Message: true,
+		Message: "Verdadero",
 	}, nil
 }
 
