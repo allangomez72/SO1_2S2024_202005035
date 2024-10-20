@@ -18,7 +18,7 @@ type Data struct {
 	Discipline int32  `json:"discipline"`
 }
 
-func getServerForDiscipline(discipline int32) string {
+/*func getServerForDiscipline(discipline int32) string {
 	switch discipline {
 	case 1:
 		return "localhost:50051" //servidor para natacion luego camhbiar el localhost
@@ -29,7 +29,7 @@ func getServerForDiscipline(discipline int32) string {
 	default:
 		return "localhost:50051" //por si da error
 	}
-}
+} */
 
 // metodo para enviar los datos al server
 func sendData_To_Server(fiberCtx *fiber.Ctx) error {
@@ -39,6 +39,9 @@ func sendData_To_Server(fiberCtx *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
+
+	// Agregar línea para depurar: mostrar los datos recibidos
+	log.Printf("Received data: %+v\n", body)
 
 	//Obtener el servidor correcto  dependiendo la disciplina que se ingrese
 	//serverAddress := getServerForDiscipline(body.Discipline) //-> aun no se usa pero es para ver a donde va cada cosa

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -34,7 +35,8 @@ func (ser *server) SendStudents(ctx context.Context, req *pb.Student) (*pb.Stude
 
 func main() {
 	//Configuracion del servidor gRPC
-	port := ":50051"
+	flag.Parse()
+	port := fmt.Sprintf(":%d", *port)
 	listen, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("Error al escuchar en el puerto %s: %v", port, err)
