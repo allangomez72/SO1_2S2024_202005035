@@ -40,6 +40,9 @@ func sendData_To_Server(fiberCtx *fiber.Ctx) error {
 		})
 	}
 
+	// Agregar línea para depurar: mostrar los datos recibidos
+	log.Printf("Received data: %+v\n", body)
+
 	//Obtener el servidor correcto  dependiendo la disciplina que se ingrese
 	//serverAddress := getServerForDiscipline(body.Discipline) //-> aun no se usa pero es para ver a donde va cada cosa
 

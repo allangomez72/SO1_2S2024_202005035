@@ -19,6 +19,6 @@ message Student {
 
 //Definimos respuesta del servidor
 message StudentResponse{
-  bool message = 1;
+  string message = 1;
 }
 
