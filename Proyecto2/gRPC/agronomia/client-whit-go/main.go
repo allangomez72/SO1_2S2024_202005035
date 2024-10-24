@@ -104,7 +104,7 @@ func main() {
 	app := fiber.New()
 
 	//definir cual es el endpoint que va a recibir los datos del estudiante
-	app.Post("/sendstudent", sendData_To_Server)
+	app.Post("/send_student_inge", sendData_To_Server)
 
 	//Iniciar el servidor en el puerto 3000
 	if err := app.Listen(":3000"); err != nil {
