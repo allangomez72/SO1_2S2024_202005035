@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+//nombre del package
+package facultad;
+
+//se puede cambiar el nombre por otro nombre de package que se defina
+option go_package = "./;facultad";
+
+//Definimos el servicio
+service FacultadService {
+  //El servidor ricibirá el mensaje de User y devolverá una respuesta de UserResponse
+  rpc SendUserInfo(Student) returns (StudentResponse);
+}
+
+//Definimos el mensaje de solicitud
+message Student {
+  string name = 1;
+  int32 age = 2;
+  string faculty = 3; // para inge/agro
+  int32 discipline = 4; // para 1-2-3 natacion-atletismo-boxeo
+}
+
+//Definimos respuesta del servidor
+message StudentResponse{
+  string message = 1;
+}
+

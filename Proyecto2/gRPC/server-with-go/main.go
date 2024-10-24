@@ -30,7 +30,7 @@ func (ser *server) SendUserInfo(ctx context.Context, req *pb.Student) (*pb.Stude
 	log.Printf("Student discipline: %d", req.Discipline)
 
 	return &pb.StudentResponse{
-		Message: "Verdadero",
+		Message: "Hola cliente recibi al estudiante",
 	}, nil
 }
 
