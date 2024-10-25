@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	port = flag.Int("port", 50051, "Puerto del servidor")
+	port = flag.Int("port", 50052, "Puerto del servidor")
 )
 
 // Server es usado para poder implemetntar gRPC

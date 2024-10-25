@@ -3,11 +3,12 @@ package main
 import (
 	pb "client-whit-go/proto-go"
 	"context"
+	"log"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"log"
-	"time"
 )
 
 // se hace el struct de como van a llegar las solicitudes HTTP y por eso se va usar fiber para mas simplicidad
@@ -44,10 +45,10 @@ func sendData_To_Server(fiberCtx *fiber.Ctx) error {
 	log.Printf("Received data: %+v\n", body)
 
 	//Obtener el servidor correcto  dependiendo la disciplina que se ingrese
-	//serverAddress := getServerForDiscipline(body.Discipline) //-> aun no se usa pero es para ver a donde va cada cosa
+	serverAddress := getServerForDiscipline(body.Discipline) //-> aun no se usa pero es para ver a donde va cada cosa
 
 	//Establecer la conexion gRPC con el servidor
-	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials())) //para cuando ya tenga las rutas de los deploymets cambiar
+	conn, err := grpc.Dial(serverAddress, grpc.WithTransportCredentials(insecure.NewCredentials())) //para cuando ya tenga las rutas de los deploymets cambiar
 	if err != nil {
 		log.Fatalf("No se puede conectar: %v", err)
 	}
@@ -104,7 +105,7 @@ func main() {
 	app := fiber.New()
 
 	//definir cual es el endpoint que va a recibir los datos del estudiante
-	app.Post("/send_student_inge", sendData_To_Server)
+	app.Post("/send_student_agro", sendData_To_Server)
 
 	//Iniciar el servidor en el puerto 3000
 	if err := app.Listen(":3000"); err != nil {

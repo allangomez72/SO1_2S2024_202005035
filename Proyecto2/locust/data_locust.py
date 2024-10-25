@@ -16,21 +16,20 @@ class WebsiteUser(HttpUser):
         student_data = {
             "name": f"{fake.name()} {fake.last_name()}", #esto es para el nombre y apellido
             "age": random.randint(18,30), #edad entre 18 y 30
-            "faculty": random.choice(faculties), #eleccion aleatoria de la facultad
+            "faculty": faculties[0], #eleccion aleatoria de la facultad
             "discipline": random.choice(disiciplines) #eleccion aleatoria de las disicplinas
         }
         #para enviar los daatos al endpoint
         self.client.post("/send_student_inge", json = student_data )
-"""
+
     @task
     def send_data_students_agronomia(self):
         #Generamos los datos random
         student_data = {
-            "student": f"{fake.name()} {fake.last_name()}", #esto es para el nombre y apellido
+            "name": f"{fake.name()} {fake.last_name()}", #esto es para el nombre y apellido
             "age": random.randint(18,30), #edad entre 18 y 30
             "faculty": faculties[1], #eleccion aleatoria de la facultad
             "discipline": random.choice(disiciplines) #eleccion aleatoria de las disicplinas
         }
         #para enviar los daatos al endpoint
-        self.client.post("/datos_locust", json = student_data )
-"""
+        self.client.post("/send_student_agro", json = student_data )

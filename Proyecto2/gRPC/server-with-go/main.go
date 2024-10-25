@@ -24,10 +24,17 @@ type server struct {
 func (ser *server) SendUserInfo(ctx context.Context, req *pb.Student) (*pb.StudentResponse, error) {
 	//mostrar los datos recibidos
 	log.Printf("Recieved: %v", req)
-	log.Printf("Student name: %s", req.Name)
-	log.Printf("Studen age: %d", req.Age)
-	log.Printf("Student faculty: %s", req.Faculty)
-	log.Printf("Student discipline: %d", req.Discipline)
+
+	//Crear  una estructura con los datos recibidos
+	//studentData := estructura.Data{
+	//	Name:       req.Name,
+	//	Age:        req.Age,
+	//	Faculty:    req.Faculty,
+	//	Discipline: req.Discipline,
+	//}
+
+	//llamar a la funcion Produce para enviar los datos a kafka
+	//kafka.Produce(studentData)
 
 	return &pb.StudentResponse{
 		Message: "Hola cliente recibi al estudiante",
