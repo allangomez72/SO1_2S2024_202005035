@@ -45,7 +45,7 @@ func sendData_To_Server(fiberCtx *fiber.Ctx) error {
 	log.Printf("Received data: %+v\n", body)
 
 	//Obtener el servidor correcto  dependiendo la disciplina que se ingrese
-	serverAddress := getServerForDiscipline(body.Discipline) //-> aun no se usa pero es para ver a donde va cada cosa
+	serverAddress := getServerForDiscipline(body.Discipline) //-> aun no se usa pero es para ver a donde va cada cosa 1
 
 	//Establecer la conexion gRPC con el servidor
 	conn, err := grpc.Dial(serverAddress, grpc.WithTransportCredentials(insecure.NewCredentials())) //para cuando ya tenga las rutas de los deploymets cambiar
@@ -97,7 +97,6 @@ func sendData_To_Server(fiberCtx *fiber.Ctx) error {
 			"errror": "timeout",
 		})
 	}
-
 }
 
 func main() {

@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-agronomia-grpc
+  namespace: grpc-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: client-agronomia-grpc
+  template:
+    metadata:
+      name: client-agronomia-grpc
+      labels:
+        app: client-agronomia-grpc
+    spec:
+      containers:
+        - name: client-agronomia-grpc
+          image:  allangomez/client:v1.0 #cambiar por la imagen de dockerhub
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-3000
+  namespace: grpc-app
+spec:
+  selector:
+    app: client-agronomia-grpc  # Cambiado aquí
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  type: ClusterIP

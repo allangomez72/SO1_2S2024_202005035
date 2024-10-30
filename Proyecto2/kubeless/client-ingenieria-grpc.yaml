@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-ingenieria-grpc
+  namespace: grpc-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: client-ingenieria-grpc
+  template:
+    metadata:
+      name: client-ingenieria-grpc
+      labels:
+        app: client-ingenieria-grpc
+    spec:
+      containers:
+        - name: client-ingenieria-grpc
+          image:  allangomez/client:v1.0 #cambiar por la imagen de dockerhub
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-8080
+  namespace: grpc-app
+spec:
+  selector:
+    app: client-ingenieria-grpc
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
