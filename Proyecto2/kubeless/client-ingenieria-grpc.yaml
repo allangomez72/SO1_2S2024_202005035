@@ -39,4 +39,4 @@ spec:
     - protocol: TCP
       port: 8080
       targetPort: 8080
-  type: ClusterIP
+  type: LoadBalancer # O ClusterIP pero es que se no se puede acceder fuera del cluster

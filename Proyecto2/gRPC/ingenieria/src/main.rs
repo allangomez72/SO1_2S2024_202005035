@@ -18,10 +18,10 @@ struct StudentData {
 // Mapeo de los servidores que se van a usar para las disciplinas
 fn get_server_for_discipline(discipline: i32) -> &'static str {
     match discipline {
-        1 => "http://localhost:50051", // natación
-        2 => "http://localhost:50052", // atletismo
-        3 => "http://localhost:50053", // boxeo
-        _ => "http://localhost:50051",   // valor por defecto
+        1 => "service-50051.grpc-app.svc.cluster.local:50051", // natación
+        2 => "service-50052.grpc-app.svc.cluster.local:50052", // atletismo
+        3 => "service-50053.grpc-app.svc.cluster.local:50053", // boxeo
+        _ => "service-50051.grpc-app.svc.cluster.local:50051",   // valor por defecto
     }
 }
 

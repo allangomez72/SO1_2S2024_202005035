@@ -1,24 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: client-agronomia-grpc
+  name: sever-athletics-grpc
   namespace: grpc-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: client-agronomia-grpc
+      app: sever-athletics-grpc
   template:
     metadata:
-      name: client-agronomia-grpc
       labels:
-        app: client-agronomia-grpc
+        app: sever-athletics-grpc
     spec:
       containers:
-        - name: client-agronomia-grpc
-          image:  allangomez/client:v1.0 #cambiar por la imagen de dockerhub
+        - name: server-athletics-grpc
+          image: allangomez/server:v1.0  # Cambia por la imagen de Docker Hub
           ports:
-            - containerPort: 3000
+            - containerPort: 50052
           resources:
             requests:
               cpu: "100m"
@@ -30,13 +29,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: service-3000
+  name: service-50052
   namespace: grpc-app
 spec:
   selector:
-    app: client-agronomia-grpc  # Cambiado aquí
+    app: sever-athletics-grpc
   ports:
     - protocol: TCP
-      port: 3000
-      targetPort: 3000
-  type: LoadBalancer # O ClusterIP pero es que se no se puede acceder fuera del cluster
+      port: 50052
+      targetPort: 50052
+  type: ClusterIP

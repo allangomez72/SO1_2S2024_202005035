@@ -21,6 +21,6 @@ RUN apt-get update && apt-get install -y libssl1.1 ca-certificates && rm -rf /va
 WORKDIR /app
 
 # Se copia el binario de la aplicacion final
-COPY --from=builder /usr/src/app/target/release/client .
-
-CMD ["./client"]
+COPY --from=builder /usr/src/app/target/release/ingenieria .
+# es el nombre que se definio en el toml
+CMD ["./ingenieria"]

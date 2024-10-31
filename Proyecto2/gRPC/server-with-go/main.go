@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"server-whit-go/estructura"
+	"server-whit-go/kafka"
 	pb "server-whit-go/proto-go"
 
 	"google.golang.org/grpc"
@@ -26,15 +28,15 @@ func (ser *server) SendUserInfo(ctx context.Context, req *pb.Student) (*pb.Stude
 	log.Printf("Recieved: %v", req)
 
 	//Crear  una estructura con los datos recibidos
-	//studentData := estructura.Data{
-	//	Name:       req.Name,
-	//	Age:        req.Age,
-	//	Faculty:    req.Faculty,
-	//	Discipline: req.Discipline,
-	//}
+	studentData := estructura.Data{
+		Name:       req.Name,
+		Age:        req.Age,
+		Faculty:    req.Faculty,
+		Discipline: req.Discipline,
+	}
 
 	//llamar a la funcion Produce para enviar los datos a kafka
-	//kafka.Produce(studentData)
+	kafka.Produce(studentData)
 
 	return &pb.StudentResponse{
 		Message: "Hola cliente recibi al estudiante",

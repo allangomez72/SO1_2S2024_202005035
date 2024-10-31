@@ -32,7 +32,7 @@ func Produce(value estructura.Data) {
 	partition := 0
 
 	//Conectar a kafka en kubernentes usando el service que se le dio
-	conn, err := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", topic, partition)
+	conn, err := kafka.DialLeader(context.Background(), "tcp", "mi-cluster-kafka-kafka-bootstrap.kafka:9092", topic, partition)
 	if err != nil {
 		log.Println("Error al conectar a kafka: ", err)
 	}

@@ -22,13 +22,13 @@ type Data struct {
 func getServerForDiscipline(discipline int32) string {
 	switch discipline {
 	case 1:
-		return "localhost:50051" //servidor para natacion luego camhbiar el localhost
+		return "service-50051.grpc-app.svc.cluster.local:50051" //servidor para natacion luego camhbiar el localhost
 	case 2:
-		return "localhost:50052" //servidor para el atletismo
+		return "service-50052.grpc-app.svc.cluster.local:50052" //servidor para el atletismo
 	case 3:
-		return "localhost:50053" //servidor para el boxeo
+		return "service-50053.grpc-app.svc.cluster.local:50053" //servidor para el boxeo
 	default:
-		return "localhost:50051" //por si da error
+		return "service-50051.grpc-app.svc.cluster.local:50051" //por si da error
 	}
 }
 

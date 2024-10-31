@@ -47,3 +47,10 @@ cargo new ingenieria
 protoc-gen-go --version
 protoc-gen-go-grpc --version
  ```
+
+Para subir al docker hub se debe hacer lo siguiente:
+```bash
+docker build -t <nombre_usuario>/<nombreimagen>:<version> .
+# Para subir la imagen al docker hub
+docker push <nombre_usuario>/<nombreimagen>:<version>
+```
