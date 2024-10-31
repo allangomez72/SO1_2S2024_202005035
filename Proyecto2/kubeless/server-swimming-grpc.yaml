@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: server-swimming-grpc
-          image: allangomez/server:v1.0  # Cambia por la imagen de Docker Hub
+          image: allangomez/server-swimming:v0.0  # Cambia por la imagen de Docker Hub
           ports:
             - containerPort: 50051
           resources:

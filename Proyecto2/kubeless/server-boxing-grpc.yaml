@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: server-boxing-grpc
-          image: allangomez/server:v1.0  # Cambia por la imagen de Docker Hub
+          image: allangomez/server-boxing:v0.0  # Cambia por la imagen de Docker Hub
           ports:
             - containerPort: 50053
           resources:

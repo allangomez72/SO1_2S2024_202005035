@@ -9,7 +9,6 @@ disiciplines = [1,2,3]
 
 class WebsiteUser(HttpUser):
     wait_time = between(1,5)
-
     @task
     def send_data_students_ingenieria(self):
         #Generamos los datos random
@@ -32,4 +31,4 @@ class WebsiteUser(HttpUser):
             "discipline": random.choice(disiciplines) #eleccion aleatoria de las disicplinas
         }
         #para enviar los daatos al endpoint
-        self.client.post("/send_student_agro", json = student_data )
+        self.client.post("http://34.83.224.70:3000/send_student_agro", json = student_data )

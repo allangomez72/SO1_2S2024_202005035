@@ -17,15 +17,14 @@ COPY . .
 RUN go build \
   -ldflags="-linkmode external -extldflags -static" \
   -tags netgo \
-  -o main
+  -o server
 
-# Nueva imagen a partir de la imagen de alpine
-FROM alpine:latest
+# Nueva imagen a partir de scratch
+FROM scratch
+# Se copian los certificados de la imagen base que se definió en build
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+# Se copia el binario de la aplicación final
+COPY --from=build /app/server server
 
-# Es necesario para conexiones HTTP seguras
-RUN apk --no-cache add ca-certificates
-
-# Se copia el binario de la aplicacion final
-COPY --from=build /app/main /main
-
-CMD ["/main"]
+# Comando para ejecutar el binario
+CMD ["/server"]

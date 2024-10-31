@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer-winners
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: consumer-winners
+  template:
+    metadata:
+      labels:
+        app: consumer-winners
+    spec:
+      containers:
+        - name: consumer-winners
+          image: allangomez/consumer-winner:v0.0
+          env:
+            - name: KAFKA_BROKER
+              value: "mi-cluster-kafka-kafka-bootstrap.kafka:9092" # Ajusta según el servicio Kafka
+            - name: REDIS_ADDR
+              value: "redis-release-master.default.svc.cluster.local:6379" # Dirección del servicio Redis
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-release
+                  key: redis-password

@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: server-athletics-grpc
-          image: allangomez/server:v1.0  # Cambia por la imagen de Docker Hub
+          image: allangomez/server-athletics:v0.0  # Cambia por la imagen de Docker Hub
           ports:
             - containerPort: 50052
           resources:

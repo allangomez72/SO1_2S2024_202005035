@@ -36,10 +36,9 @@ async fn handle_student(student: web::Json<StudentData>) -> impl Responder {
     let (tx, mut rx) = mpsc::channel(1);
 
     // Obtener el servidor que corresponde a la disciplina del estudiante
-    //let server_address = get_server_for_discipline(student_data.discipline);
-    let server_address = "http://localhost:50051";
+    let server_address = get_server_for_discipline(student_data.discipline);
+    //let server_address = "http://localhost:50051";
     // Hacer la solicitud gRPC en un task asíncrono
-    let tx_clone = tx.clone();
 
     //Hilo para manejar las solicit gRPC
     tokio::spawn(async move {

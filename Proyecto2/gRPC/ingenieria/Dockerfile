@@ -1,26 +1,27 @@
-# Definir la imagen base
+# Build stage
 FROM rust:1.72 as builder
 
-# Instalar las dependencias necesarias
+# Install protobuf compiler
 RUN apt-get update && apt-get install -y protobuf-compiler && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app
 
-# Copiar todo el contenido 
+# Copy the entire project
 COPY . .
 
-# Constuir la aplicacion
+# Build the application
 RUN cargo build --release
 
-# Definir la imagen base
-FROM debian:buster-slim
+# Runtime stage
+FROM debian:bullseye-slim
 
-# Instalar las librerias necesarias
+# Install necessary runtime libraries
 RUN apt-get update && apt-get install -y libssl1.1 ca-certificates && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Se copia el binario de la aplicacion final
+# Copy the built binary from the builder stage
 COPY --from=builder /usr/src/app/target/release/ingenieria .
-# es el nombre que se definio en el toml
+
+# Set the startup command
 CMD ["./ingenieria"]

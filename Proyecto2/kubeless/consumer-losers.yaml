@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer-losers
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: consumer-losers
+  template:
+    metadata:
+      labels:
+        app: consumer-losers
+    spec:
+      containers:
+        - name: consumer-losers
+          image: allangomez/consumer-loser:v0.0
+          env:
+            - name: KAFKA_BROKER
+              value: "mi-cluster-kafka-kafka-bootstrap.kafka:9092"
+            - name: REDIS_ADDR
+              value: "redis-release-master.default.svc.cluster.local:6379"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-release
+                  key: redis-password
