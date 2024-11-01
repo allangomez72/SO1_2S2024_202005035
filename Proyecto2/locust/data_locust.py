@@ -19,7 +19,7 @@ class WebsiteUser(HttpUser):
             "discipline": random.choice(disiciplines) #eleccion aleatoria de las disicplinas
         }
         #para enviar los daatos al endpoint
-        self.client.post("/send_student_inge", json = student_data )
+        self.client.post("http://35.247.59.96:3000/send_student_inge", json = student_data )
 
     @task
     def send_data_students_agronomia(self):

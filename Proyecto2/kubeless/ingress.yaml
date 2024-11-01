@@ -4,23 +4,51 @@ metadata:
   name: grpc-ingress
   namespace: grpc-app
   annotations:
-    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"  # Cambiado a GRPC
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"  # Cambiado a GRPC
 spec:
   ingressClassName: nginx
   rules:
     - http:
         paths:
-          - path: /send_student_inge
+          - path: /send_student_agro
             pathType: Prefix
             backend:
               service:
                 name: service-3000
                 port:
                   number: 3000
-          - path: /send_student_agro
+          - path: /send_student_inge
             pathType: Prefix
             backend:
               service:
                 name: service-8080
                 port:
+                  number: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grpc-ingress
+  namespace: grpc-app
+  labels:
+    name: grpc-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: 35.232.190.221.nip.io
+      http:
+        paths:
+          - pathType: Prefix
+            backend:
+              service:
+                name: service-3000
+                port:
+                  number: 3000
+            path: /send_student_agro
+          - pathType: Prefix
+            backend:
+              service:
+                name: service-8080
+                port:
                   number: 8080
+            path: /send_student_inge

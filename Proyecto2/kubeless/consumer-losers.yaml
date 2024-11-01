@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: consumer-losers
-          image: allangomez/consumer-loser:v0.0
+          image: allangomez/consumer-loser:v0.5
           env:
             - name: KAFKA_BROKER
               value: "mi-cluster-kafka-kafka-bootstrap.kafka:9092"

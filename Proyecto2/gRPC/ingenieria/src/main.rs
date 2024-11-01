@@ -18,10 +18,10 @@ struct StudentData {
 // Mapeo de los servidores que se van a usar para las disciplinas
 fn get_server_for_discipline(discipline: i32) -> &'static str {
     match discipline {
-        1 => "service-50051.grpc-app.svc.cluster.local:50051", // natación
-        2 => "service-50052.grpc-app.svc.cluster.local:50052", // atletismo
-        3 => "service-50053.grpc-app.svc.cluster.local:50053", // boxeo
-        _ => "service-50051.grpc-app.svc.cluster.local:50051",   // valor por defecto
+        1 => "http://service-50051.grpc-app.svc.cluster.local:50051", // natación
+        2 => "http://service-50052.grpc-app.svc.cluster.local:50052", // atletismo
+        3 => "http://service-50053.grpc-app.svc.cluster.local:50053", // boxeo
+        _ => "http://service-50051.grpc-app.svc.cluster.local:50051",   // valor por defecto
     }
 }
 
@@ -83,12 +83,12 @@ async fn handle_student(student: web::Json<StudentData>) -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    println!("Iniciando el servidor en localhost:8080");
+    println!("Iniciando el servidor en :8080");
     HttpServer::new(|| {
         App::new()
             .route("/send_student_inge", web::post().to(handle_student))
     })
-        .bind("127.0.0.1:8080")?
+        .bind("0.0.0.0:3000")?
         .run()
         .await
 }

@@ -135,7 +135,8 @@ Para ver los logs de los pods
 kubectl logs <nombre-del-pod> -n grpc-app
 ```
 
-kubectl logs client-ingenieria-grpc-75c7b48674-97lck -n grpc-app
+kubectl delete -f ingress.yaml -n grpc-app
+kubectl get ingress -n grpc-app
 
 kubectl get pods -n kafka
 
@@ -144,17 +145,22 @@ kubectl logs sever-boxing-grpc-565dbfbbb-r9q9l -n grpc-app
 kubectl logs sever-swimming-grpc-764fbd48c4-j845f -n grpc-app
 
 kubectl logs client-agronomia-grpc-747dd95988-85ckx -n grpc-app
-kubectl logs client-ingenieria-grpc-85dc4fd4d5-dmmvb -n grpc-app
+kubectl logs client-ingenieria-grpc-5968996f46-765kq -n grpc-app
 
+kubectl logs <nombre_del_pod> (-n <nombre_del_namespace)
 
-kubectl logs consumer-losers-7c6878b4c7-znjzx
-kubectl logs consumer-winners-6bbcdbfd99-zzscb
+kubectl logs consumer-losers-7c6878b4c7-sz9bd
+kubectl logs consumer-winners-5fdf56d569-r4vjt
+
 
 eliminar todo lo de client
 kubectl delete -f client-ingenieria-grpc.yaml
 
 eliminar todo el loser
 kubectl delete -f consumer-losers.yaml
+
+eliminar todo el winner
+kubectl delete -f consumer-winners.yaml
 
 ver errores con logs
 kubectl logs client-ingenieria-grpc-75c7b48674-29dj5 -n grpc-app

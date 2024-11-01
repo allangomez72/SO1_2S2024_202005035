@@ -1,27 +1,35 @@
-# Build stage
-FROM rust:1.72 as builder
+# Etapa 1: Construcción
+FROM rust:1.72-slim as builder
 
-# Install protobuf compiler
+# Instala protobuf y las dependencias necesarias
 RUN apt-get update && apt-get install -y protobuf-compiler && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /usr/src/app
-
-# Copy the entire project
-COPY . .
-
-# Build the application
-RUN cargo build --release
-
-# Runtime stage
-FROM debian:bullseye-slim
-
-# Install necessary runtime libraries
-RUN apt-get update && apt-get install -y libssl1.1 ca-certificates && rm -rf /var/lib/apt/lists/*
-
+# Configura el directorio de trabajo
 WORKDIR /app
 
-# Copy the built binary from the builder stage
-COPY --from=builder /usr/src/app/target/release/ingenieria .
+# Copia los archivos Cargo para gestionar dependencias
+COPY Cargo.toml Cargo.lock ./
 
-# Set the startup command
-CMD ["./ingenieria"]
+# Construye las dependencias de Rust para que se almacenen en caché
+RUN mkdir src && echo 'fn main() {}' > src/main.rs
+RUN cargo build --release && rm -rf src
+
+# Copia el código fuente
+COPY . .
+
+# Ejecuta el build.rs para compilar los protos
+RUN cargo build --release
+
+# Etapa 2: Imagen ligera para ejecución
+FROM debian:bookworm-slim
+
+# Instala las dependencias mínimas necesarias para ejecutar la aplicación
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copia el binario desde la etapa de construcción
+COPY --from=builder /app/target/release/ingenieria /usr/local/bin/ingenieria
+
+# Comando de inicio
+CMD ["ingenieria"]

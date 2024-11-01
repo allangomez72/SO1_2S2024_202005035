@@ -8,9 +8,18 @@ import (
 	"github.com/go-redis/redis/v8"
 	"log"
 	"os"
+	"time"
 )
 
 var ctx = context.Background()
+
+// Estructura para deserializar el mensaje JSON
+type Loser struct {
+	Name       string `json:"name"`
+	Age        int32  `json:"age"`
+	Faculty    string `json:"faculty"`
+	Discipline int32  `json:"discipline"`
+}
 
 // Configuración de Redis
 var redisClient *redis.Client
@@ -23,20 +32,12 @@ func initRedis() {
 	})
 
 	// Verificar conexión a Redis
-	_, err := redisClient.Ping(ctx).Result()
+	pong, err := redisClient.Ping(ctx).Result()
 	if err != nil {
 		log.Fatalf("Error al conectar a Redis: %s", err)
 	} else {
-		log.Println("Conectado a Redis exitosamente")
+		log.Println("Conectado a Redis exitosamente:", pong)
 	}
-}
-
-// Estructura para almacenar los datos de un "loser"
-type Loser struct {
-	Name       string `json:"name"`
-	Age        int    `json:"age"`
-	Faculty    string `json:"faculty"`
-	Discipline int    `json:"discipline"`
 }
 
 func consumeLosers() {
@@ -67,53 +68,49 @@ func consumeLosers() {
 			for {
 				select {
 				case msg := <-pc.Messages():
-					if msg == nil {
-						log.Println("Mensaje recibido es nulo")
-						continue
-					}
-
-					// Mensaje de depuración para confirmar recepción de datos
-					fmt.Printf("Perdedor recibido: %s\n", string(msg.Value))
-
-					// Verificar si el valor del mensaje no está vacío
-					if len(msg.Value) == 0 {
-						log.Println("Advertencia: el mensaje recibido está vacío")
-						continue
-					}
-
+					// Deserializar el mensaje JSON para obtener la facultad
 					var loser Loser
-					// Deserializar el mensaje a la estructura de "loser"
 					if err := json.Unmarshal(msg.Value, &loser); err != nil {
 						log.Printf("Error al deserializar el mensaje: %s", err)
 						continue
 					}
 
-					// Obtener la lista actual de losers desde Redis
-					var losersList []Loser
-					losersData, err := redisClient.Get(ctx, "losers:all").Result()
-					if err == nil {
-						// Si hay datos existentes, deserializarlos
-						if err := json.Unmarshal([]byte(losersData), &losersList); err != nil {
-							log.Printf("Error al deserializar la lista de losers: %s", err)
-						}
-					}
-
-					// Agregar el nuevo loser a la lista
-					losersList = append(losersList, loser)
-
-					// Volver a serializar y guardar la lista actualizada en Redis
-					updatedData, err := json.Marshal(losersList)
-					if err != nil {
-						log.Printf("Error al serializar la lista actualizada: %s", err)
-						continue
-					}
-
-					err = redisClient.Set(ctx, "losers:all", updatedData, 0).Err()
-					if err != nil {
-						log.Printf("Error al guardar en Redis (clave: losers:all): %s", err)
+					// Generar clave en Redis
+					var key string
+					if msg.Key != nil {
+						key = fmt.Sprintf("losers:%s", string(msg.Key))
 					} else {
-						log.Println("Lista de losers actualizada en Redis")
+						key = fmt.Sprintf("losers:%d", time.Now().UnixNano())
 					}
+
+					// Guardar el mensaje en Redis con la clave generada
+					err := redisClient.Set(ctx, key, msg.Value, 0).Err()
+					if err != nil {
+						log.Printf("Error al guardar en Redis: %s", err)
+					} else {
+						fmt.Printf("Perdedor guardado con clave %s: %s\n", key, string(msg.Value))
+					}
+
+					// Incrementar el contador de facultad en Redis (CONTEO ALUMNO POR FACULTAD)
+					if loser.Faculty == "Ingenieria" {
+						err = redisClient.Incr(ctx, "ing-count").Err()
+					} else if loser.Faculty == "Agronomia" {
+						err = redisClient.Incr(ctx, "agro-count").Err()
+					}
+					if err != nil {
+						log.Printf("Error al incrementar el contador de %s: %s", loser.Faculty, err)
+					}
+
+					// Incrementar el contador de la facultad que mas pedio (CONTEO ALUMNO POR FACULTAD)
+					if loser.Faculty == "Ingenieria" {
+						err = redisClient.Incr(ctx, "loser-inge-count").Err()
+					} else if loser.Faculty == "Agronomia" {
+						err = redisClient.Incr(ctx, "loser-agro-count").Err()
+					}
+					if err != nil {
+						log.Printf("Error al incrementar el contador de %s: %s", loser.Discipline, err)
+					}
+
 				case err := <-pc.Errors():
 					log.Printf("Error en el consumidor: %s", err)
 				}

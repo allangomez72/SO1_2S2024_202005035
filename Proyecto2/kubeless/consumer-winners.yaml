@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: consumer-winners
-          image: allangomez/consumer-winner:v0.0
+          image: allangomez/consumer-winner:v0.3
           env:
             - name: KAFKA_BROKER
               value: "mi-cluster-kafka-kafka-bootstrap.kafka:9092" # Ajusta según el servicio Kafka
