@@ -135,6 +135,35 @@ Para ver los logs de los pods
 kubectl logs <nombre-del-pod> -n grpc-app
 ```
 
+```bash
+#para la contraseña de redis
+kubectl get secret --namespace default redis-release -o jsonpath="{.data.redis-password}" | base64 -d
+```
+
+```bash
+#para la contraseña de grafana
+echo "Password: $(kubectl get secret grafana-admin --namespace default -o jsonpath="{.data.GF_SECURITY_ADMIN_PASSWORD}" | base64 -d)"
+```
+
+Instalar grafana con la configuracion del loadbalancer
+```bash
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+helm install grafana bitnami/grafana --set plugins="redis-datasource" --set security.allowEmbedding=true --set service.type=LoadBalancer --set http.cors.allowOrigins=http://localhost:3000 --namespace default
+```
+
+Recuperar contraseña de grafana
+```bash
+echo "Password: $(kubectl get secret grafana-admin --namespace default -o jsonpath="{.data.GF_SECURITY_ADMIN_PASSWORD}" | base64 -d)"
+```
+
+Instalar prometheus con los exportadores de las metricas:
+```bash
+helm install prometheus bitnami/prometheus --namespace default
+helm install kube-state-metrics bitnami/kube-state-metrics
+helm install node-exporter bitnami/node-exporter
+```
+
 kubectl delete -f ingress.yaml -n grpc-app
 kubectl get ingress -n grpc-app
 
@@ -149,9 +178,11 @@ kubectl logs client-ingenieria-grpc-5968996f46-765kq -n grpc-app
 
 kubectl logs <nombre_del_pod> (-n <nombre_del_namespace)
 
-kubectl logs consumer-losers-7c6878b4c7-sz9bd
-kubectl logs consumer-winners-5fdf56d569-r4vjt
+kubectl logs consumer-losers-56cfc6b676-2rpk4
+kubectl logs consumer-winners-567f585c9b-km5p9
 
+consumer-losers-56cfc6b676-2rpk4
+consumer-winners-567f585c9b-km5p9
 
 eliminar todo lo de client
 kubectl delete -f client-ingenieria-grpc.yaml
@@ -165,19 +196,3 @@ kubectl delete -f consumer-winners.yaml
 ver errores con logs
 kubectl logs client-ingenieria-grpc-75c7b48674-29dj5 -n grpc-app
 
-
-{"name":"Christopher Lopez Dorsey","age":29,"faculty":"Agronomia","discipline":3}
-
-{"name":"Clayton Baker Gray","age":23,"faculty":"Agronomia","discipline":3}
-
-{"name":"Elizabeth Macias Flores","age":23,"faculty":"Agronomia","discipline":3}
-
-{"name":"John Edwards Johnson","age":24,"faculty":"Agronomia","discipline":1}
-
-{"name":"Darlene Garcia Conley","age":23,"faculty":"Agronomia","discipline":2}
-
-{"name":"Terry Mueller Nelson","age":22,"faculty":"Agronomia","discipline":1}
-
-{"name":"Kelsey Johnston Patton","age":26,"faculty":"Agronomia","discipline":1}
-
-{"name":"Jason Hernandez Bennett","age":20,"faculty":"Agronomia","discipline":2}
